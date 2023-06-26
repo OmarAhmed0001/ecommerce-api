@@ -1,0 +1,58 @@
+[
+    {
+        "name": "hossam mohamed",
+        "email": "hm2455@fayoum.edu.eg",
+        "password": "hossam1234",
+        "confirmPassword": "hossam1234",
+        "phone": "+201024070527"
+    },
+    {
+        "name": "ziad hossam",
+        "email": "zh1152@fayoum.edu.eg",
+        "password": "ziad1234",
+        "confirmPassword": "ziad1234",
+        "phone": "+201019868149"
+    },
+    {
+        "name": "khaled",
+        "email": "ka1395@fayoum.edu.eg",
+        "password": "khaled1234",
+        "confirmPassword": "khaled1234",
+        "phone": "+201096334755"
+    },
+    {
+        "name": "fahmy",
+        "email": "ha2505@fayoum.edu.eg",
+        "password": "fahmy1234",
+        "confirmPassword": "fahmy1234",
+        "phone": "+201028842796"
+    },
+    {
+        "name": "seif",
+        "email": "sn1279@fayoum.edu.eg",
+        "password": "seif1234",
+        "confirmPassword": "seif1234",
+        "phone": "+201090362543"
+    },
+    {
+        "name": "karim",
+        "email": "ka1396@fayoum.edu.eg",
+        "password": "karim1234",
+        "confirmPassword": "karim1234",
+        "phone": "+201555530381"
+    },
+    {
+        "name": "abdelqawe",
+        "email": "ma4545@fayoum.edu.eg",
+        "password": "abdelqawe1234",
+        "confirmPassword": "abdelqawe1234",
+        "phone": "+201015568435"
+    },
+    {
+        "name": "mario",
+        "email": "aa5186@fayoum.edu.eg",
+        "password": "abdo1234",
+        "confirmPassword": "abdo1234",
+        "phone": "+201091140673"
+    }
+]
