@@ -1,5 +1,4 @@
 import express from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import asyncHandler from 'express-async-handler';
 import {
     createOne,
@@ -10,9 +9,34 @@ import {
 } from './HandlersFactory';
 import Review from '../models/reviewModel';
 
+// Nest Rout
+// @route   Get /api/v1/products/:productId/reviews
+export const createFilterObject = asyncHandler(
+    async (req: express.Request, res: express.Response, next: Function) => {
+        let filterObject = {};
+        if (req.params.productId)
+            filterObject = { product: req.params.productId };
+        req.body.filterObject = filterObject;
+        next();
+    }
+);
 
-
-
+// @desc    Set product id to body
+// @route   Get /api/v1/products/:productId/reviews
+// @access  Public
+// Nested Rout
+export const setProductIdAndUserIdToBody = asyncHandler(
+    async (req: express.Request, res: express.Response, next: Function) => {
+        if (!req.body.product) {
+            req.body.product = req.params.productId;
+        }
+        // in TS req.user === req.body.user so we don't need to set it
+        if (!req.body.user) {
+            req.body.user = req.body.user._id;
+        }
+        next();
+    }
+);
 
 // @desc    Get list of Reviews
 // @route   Get /api/v1/reviews

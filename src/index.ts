@@ -15,7 +15,7 @@ import BrandRoute from '../routes/brandRoute';
 import ProductRoute from '../routes/productRoute';
 import UserRoute from '../routes/userRoute';
 import AuthRoute from '../routes/authRoute';
-import ReviewRoute from '../routes/ReviewRoute';
+import ReviewRoute from '../routes/reviewRoute';
 // Error Handling
 import ApiError from '../utils/apiError';
 import globalError from '../middlewares/errorMiddleware';

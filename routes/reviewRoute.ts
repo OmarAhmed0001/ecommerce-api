@@ -5,6 +5,8 @@ import {
     createReview,
     updateReview,
     deleteReview,
+    createFilterObject,
+    setProductIdAndUserIdToBody,
 } from '../controllers/ReviewController';
 import {
     createReviewValidator,
@@ -14,25 +16,26 @@ import {
 } from '../utils/validators/ReviewValidator';
 import { protect, allowedTo } from '../controllers/AuthController';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
     .route('/')
-    .get(getReviews)
+    .get(createFilterObject, getReviews)
     .post(
         protect,
         allowedTo('user'),
+        setProductIdAndUserIdToBody,
         createReviewValidator,
         createReview
     );
 router
     .route('/:id')
     .get(getReviewValidator, getReview)
-    .put(
+    .put(protect, allowedTo('user'), updateReviewValidator, updateReview)
+    .delete(
         protect,
-        allowedTo('user'),
-        updateReviewValidator,
-        updateReview
-    )
-    .delete(protect, allowedTo('user','manager','admin'), deleteReviewValidator, deleteReview);
+        allowedTo('user', 'manager', 'admin'),
+        deleteReviewValidator,
+        deleteReview
+    );
 export default router;

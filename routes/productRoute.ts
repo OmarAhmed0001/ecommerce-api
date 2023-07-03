@@ -15,8 +15,9 @@ import {
     updateProductValidator,
 } from '../utils/validators/productValidator';
 import { protect, allowedTo } from '../controllers/AuthController';
-
+import ReviewRoute from './reviewRoute';
 const router = express.Router();
+router.use('/:productId/reviews', ReviewRoute);
 
 router
     .route('/')
@@ -40,10 +41,5 @@ router
         updateProductValidator,
         updateProduct
     )
-    .delete(
-        protect,
-        allowedTo('admin'),
-        deleteProductValidator,
-        deleteProduct
-    );
+    .delete(protect, allowedTo('admin'), deleteProductValidator, deleteProduct);
 export default router;

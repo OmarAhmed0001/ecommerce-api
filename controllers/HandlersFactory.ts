@@ -14,6 +14,7 @@ export const deleteOne = (Model: any) =>
                     new ApiError(`there is no document for this id ${id}`, 404)
                 );
             } else {
+                document.remove();
                 res.status(204).send();
             }
         }
@@ -36,6 +37,7 @@ export const updateOne = (Model: any) =>
                     )
                 );
             } else {
+                document.save();
                 res.status(200).json({ data: document });
             }
         }
@@ -44,6 +46,7 @@ export const updateOne = (Model: any) =>
 export const createOne = (Model: any) =>
     asyncHandler(async (req: express.Request, res: express.Response) => {
         const document = await Model.create(req.body);
+        document.save();
         res.status(201).json({ data: document });
     });
 
@@ -53,7 +56,7 @@ export const getOne = (Model: any, populationOpt: String = '') =>
             const { id } = req.params;
             // 1) Build query
             let query = Model.findById(id);
-            if(populationOpt) {
+            if (populationOpt) {
                 query = query.populate(populationOpt);
             }
             // 2) Execute query

@@ -2,7 +2,7 @@ import { timeStamp } from 'console';
 import dotenv from 'dotenv';
 dotenv.config({ path: 'config.env' });
 import mongoose from 'mongoose';
-
+import Product from './productModel';
 // 1- Create Schema
 const ReviewSchema = new mongoose.Schema(
     {
@@ -22,6 +22,7 @@ const ReviewSchema = new mongoose.Schema(
             ref: 'User',
             required: [true, 'User required'],
         },
+        // parent referencing (one to many)
         product: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Product',
@@ -39,6 +40,45 @@ ReviewSchema.pre(/^find/, function (next) {
     next();
 });
 
+ReviewSchema.statics.calcAverageRatingsAndQuantity = async function (
+    productId: string
+) {
+    const stats = await this.aggregate([
+        // stage 1 get all reviews in specific product
+        {
+            $match: { product: productId },
+        },
+        // stage 2 calculate average and sum of ratings
+        {
+            $group: {
+                _id: '$product',
+                nRating: { $sum: 1 },
+                avgRating: { $avg: '$rating' },
+            },
+        },
+    ]);
+    const { nRating, avgRating } =
+        stats.length > 0 ? stats[0] : { nRating: 0, avgRating: 0 };
+
+    await Product.findByIdAndUpdate(productId, {
+        ratingQuantity: nRating,
+        ratingAverage: avgRating,
+    });
+};
+
+ReviewSchema.post('save', async function () {
+    // this points to current review
+    // this.constructor points to ReviewModel
+    const reviewModel = this.constructor as any;
+    await reviewModel.calcAverageRatingsAndQuantity(this.product);
+});
+
+ReviewSchema.post('remove', async function () {
+    // this points to current review
+    // this.constructor points to ReviewModel
+    const reviewModel = this.constructor as any;
+    await reviewModel.calcAverageRatingsAndQuantity(this.getQuery().product);
+});
 // 2- Create Model
 const ReviewModel = mongoose.model('Review', ReviewSchema);
 
