@@ -10,7 +10,6 @@ const ReviewSchema = new mongoose.Schema(
             type: String,
             //trim: true, // trim whitespace and when use it with unique it will not work it may work with no message in unique
             required: [true, 'Review required'],
-           
         },
         rating: {
             type: Number,
@@ -31,6 +30,14 @@ const ReviewSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+ReviewSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: 'name profilePic',
+    });
+    next();
+});
 
 // 2- Create Model
 const ReviewModel = mongoose.model('Review', ReviewSchema);

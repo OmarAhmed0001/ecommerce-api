@@ -15,41 +15,87 @@
 import { body, check } from 'express-validator';
 import { RequestHandler } from 'express';
 import validatorMiddleware from '../../middlewares/validatorMiddleware';
-import slugify from 'slugify';
+import Review from '../../models/reviewModel';
+
+export const createReviewValidator: RequestHandler[] = [
+    check('title').optional(),
+    check('rating')
+        .notEmpty()
+        .withMessage('rating value required')
+        .isFloat({ min: 1, max: 5 })
+        .withMessage('invalid rating value'),
+    // check('user').optional().isMongoId().withMessage('invalid user id'),
+    check('product')
+        .isMongoId()
+        .withMessage('invalid product id')
+        .custom(async (value, { req }) => {
+            // check if logged in user create review for this product before
+            if (!req.body.user) {
+                throw new Error('You must login first');
+            }
+            const review = await Review.findOne({
+                product: value,
+                user: req.body.user,
+            });
+            if (review) {
+                throw new Error('You already review this product');
+            }
+            return true;
+        }),
+    validatorMiddleware,
+];
 
 export const getReviewValidator: RequestHandler[] = [
     check('id').isMongoId().withMessage('invalid Review id'),
     validatorMiddleware,
 ];
 
-export const createReviewValidator: RequestHandler[] = [
-    check('name')
-        .notEmpty()
-        .withMessage('Review required')
-        .isLength({ min: 2 })
-        .withMessage('Too short name')
-        .isLength({ max: 32 })
-        .withMessage('Too long name')
-        .custom((value, { req }) => {
-            req.body.slug = slugify(value);
-            return true;
-        }),
-    validatorMiddleware,
-];
-
 export const updateReviewValidator: RequestHandler[] = [
-    check('id').isMongoId().withMessage('invalid Review id'),
-    body('name')
-        .optional()
-        .custom((value, { req }) => {
-            req.body.slug = slugify(value);
+    check('id')
+        .isMongoId()
+        .withMessage('invalid Review id')
+        .custom(async (value, { req }) => {
+            //check if logged in user is the review owner
+            if (!req.body.user) {
+                throw new Error('You must login first');
+            }
+            const review = await Review.findById(value);
+            if (!review) {
+                throw new Error(`No review found with id ${value}`);
+            }
+            console.log(review.user?._id, req.body.user._id);
+
+            if (review.user?._id.toString() !== req.body.user._id.toString()) {
+                throw new Error('You are not allowed to update this review');
+            }
             return true;
         }),
     validatorMiddleware,
 ];
 
 export const deleteReviewValidator: RequestHandler[] = [
-    check('id').isMongoId().withMessage('invalid Review id'),
+    check('id')
+        .isMongoId()
+        .withMessage('invalid Review id')
+        .custom(async (value, { req }) => {
+            //check if logged in user is the review owner
+            if (req.body.user.role === 'user') {
+                const review = await Review.findById(value);
+                if (!review) {
+                    throw new Error(`No review found with id ${value}`);
+                }
+                console.log(review.user?._id, req.body.user._id);
+                if (
+                    review.user?._id.toString() !== req.body.user._id.toString()
+                ) {
+                    throw new Error(
+                        'You are not allowed to delete this review'
+                    );
+                }
+            }
+
+            return true;
+        }),
     validatorMiddleware,
 ];
 // export default ReviewValidator;

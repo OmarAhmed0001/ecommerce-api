@@ -66,8 +66,8 @@ const { IMAGE_BASE_URL } = process.env;
 
 const setImageURL = (doc: any) => {
     // return image based url + image name
-    if (doc.image) {
-        doc.image = `${IMAGE_BASE_URL}/users/${doc.image}`;
+    if (doc.profilePic) {
+        doc.profilePic = `${IMAGE_BASE_URL}/users/${doc.profilePic}`;
     }
 };
 

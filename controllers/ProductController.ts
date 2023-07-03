@@ -74,7 +74,7 @@ export const getProducts = getAll(Product, 'Product');
 // @desc    Get specific Product by id
 // @route   Get /api/v1/Products/:id
 // @access  Public
-export const getProduct = getOne(Product);
+export const getProduct = getOne(Product,'reviews');
 
 // @desc    Create list of Products
 // @route   Post /api/v1/Products

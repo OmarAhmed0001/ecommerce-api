@@ -47,11 +47,17 @@ export const createOne = (Model: any) =>
         res.status(201).json({ data: document });
     });
 
-export const getOne = (Model: any) =>
+export const getOne = (Model: any, populationOpt: String = '') =>
     asyncHandler(
         async (req: express.Request, res: express.Response, next: Function) => {
             const { id } = req.params;
-            const document = await Model.findById(id);
+            // 1) Build query
+            let query = Model.findById(id);
+            if(populationOpt) {
+                query = query.populate(populationOpt);
+            }
+            // 2) Execute query
+            const document = await query;
             if (!document) {
                 //res.status(404).json({msg:`there is no document for this id ${id}`})
                 return next(
