@@ -16,6 +16,7 @@ import ProductRoute from '../routes/productRoute';
 import UserRoute from '../routes/userRoute';
 import AuthRoute from '../routes/authRoute';
 import ReviewRoute from '../routes/reviewRoute';
+import WishlistRoute from '../routes/wishlistRoute';
 // Error Handling
 import ApiError from '../utils/apiError';
 import globalError from '../middlewares/errorMiddleware';
@@ -48,6 +49,7 @@ app.use('/api/v1/products', ProductRoute);
 app.use('/api/v1/users', UserRoute);
 app.use('/api/v1/auth', AuthRoute);
 app.use('/api/v1/reviews', ReviewRoute);
+app.use('/api/v1/wishlist', WishlistRoute);
 
 app.all('*', (req: express.Request, res: express.Response, next: Function) => {
     // create error and send it to error handling
