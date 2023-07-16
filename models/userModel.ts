@@ -63,6 +63,17 @@ const UserSchema = new mongoose.Schema(
                 ref: 'Product',
             },
         ],
+        // child referencing (one to many)
+        addresses: [
+            {
+                id: { type: mongoose.Schema.Types.ObjectId },
+                alias: String,
+                details: String,
+                city: String,
+                phone: String,
+                postalCode: String,
+            },
+        ],
     },
     {
         timestamps: true,

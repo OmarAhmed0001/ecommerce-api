@@ -3,16 +3,16 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/userModel';
 import ApiError from '../utils/apiError';
 
-// @desc    Add Product to wishlist
-// @route   Post /api/v1/wishlist
+// @desc    Add address to addresses list
+// @route   Post /api/v1/addresses
 // @access  Private
-export const addProductToWishlist = asyncHandler(
+export const addAddress = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        // $addToSet ==> add productId to wishlist array if productId not exist
+        // $addToSet ==> add address to addresses array if address not exist
         const document = await User.findByIdAndUpdate(
             req.body.user._id,
             {
-                $addToSet: { wishlist: req.body.productId },
+                $addToSet: { addresses: req.body },
             },
             { new: true }
         );
@@ -27,23 +27,23 @@ export const addProductToWishlist = asyncHandler(
         } else {
             res.status(200).json({
                 status: 'success',
-                message: 'Product added successfully to your wishlist.',
-                data: document.wishlist,
+                message: 'Address added successfully.',
+                data: document.addresses,
             });
         }
     }
 );
 
-// @desc    remove Product from wishlist
-// @route   DELETE /api/v1/wishlist/:productId
+// @desc    remove Address from Addresses list
+// @route   DELETE /api/v1/addresses/:id
 // @access  Private
-export const removeProductFromWishlist = asyncHandler(
+export const removeAddress = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         // $pull ==> remove productId to wishlist array if productId exist
         const document = await User.findByIdAndUpdate(
             req.body.user._id,
             {
-                $pull: { wishlist: req.params.productId },
+                $pull: { addresses: { _id: req.params.addressId } },
             },
             { new: true }
         );
@@ -58,20 +58,20 @@ export const removeProductFromWishlist = asyncHandler(
         } else {
             res.status(200).json({
                 status: 'success',
-                message: 'Product added successfully to your wishlist.',
-                data: document.wishlist,
+                message: 'Address removed successfully.',
+                data: document.addresses,
             });
         }
     }
 );
 
-// @desc    Get Logged User wishlist
-// @route   GET /api/v1/wishlist
+// @desc    Get Logged User Addresses list
+// @route   GET /api/v1/addresses
 // @access  Private
-export const getLoggedUserWishlist = asyncHandler(
+export const getLoggedUserAddresses = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const document = await User.findById(req.body.user._id).populate(
-            'wishlist'
+            'addresses'
         );
         if (!document) {
             return next(
@@ -83,9 +83,9 @@ export const getLoggedUserWishlist = asyncHandler(
         }
         res.status(200).json({
             status: 'success',
-            message: 'User wishlist.',
-            result: document.wishlist.length,
-            data: document.wishlist,
+            message: 'User addresses list.',
+            result: document.addresses.length,
+            data: document.addresses,
         });
     }
 );

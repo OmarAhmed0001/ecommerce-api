@@ -9,14 +9,7 @@ import morgan from 'morgan';
 // Database
 import { dbConnection } from '../config/database';
 // Routes
-import CategoryRoute from '../routes/categoryRoute';
-import SubCategoryRoute from '../routes/subCategoryRoute';
-import BrandRoute from '../routes/brandRoute';
-import ProductRoute from '../routes/productRoute';
-import UserRoute from '../routes/userRoute';
-import AuthRoute from '../routes/authRoute';
-import ReviewRoute from '../routes/reviewRoute';
-import WishlistRoute from '../routes/wishlistRoute';
+import mountRoutes from '../routes/index';
 // Error Handling
 import ApiError from '../utils/apiError';
 import globalError from '../middlewares/errorMiddleware';
@@ -42,14 +35,7 @@ if (process.env.NODE_ENV === 'development') {
     console.log(`mode : ${process.env.NODE_ENV}`);
 }
 // Mount Routs
-app.use('/api/v1/categories', CategoryRoute);
-app.use('/api/v1/subcategories', SubCategoryRoute);
-app.use('/api/v1/brands', BrandRoute);
-app.use('/api/v1/products', ProductRoute);
-app.use('/api/v1/users', UserRoute);
-app.use('/api/v1/auth', AuthRoute);
-app.use('/api/v1/reviews', ReviewRoute);
-app.use('/api/v1/wishlist', WishlistRoute);
+mountRoutes(app);
 
 app.all('*', (req: express.Request, res: express.Response, next: Function) => {
     // create error and send it to error handling
