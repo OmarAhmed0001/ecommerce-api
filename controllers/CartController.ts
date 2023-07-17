@@ -207,7 +207,10 @@ export const updateCartItemQuantity = asyncHandler(
 export const applayCoupon = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { coupon } = req.body;
-        const validCoupon = await Coupon.findOne({ name: coupon,expire:{$gte:Date.now()} });
+        const validCoupon = await Coupon.findOne({
+            name: coupon,
+            expire: { $gte: Date.now() },
+        });
         if (!validCoupon) {
             return next(
                 new ApiError(`there is no coupon for this name ${coupon}`, 404)

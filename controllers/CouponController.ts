@@ -6,7 +6,7 @@ import {
     updateOne,
 } from './HandlersFactory';
 
-import Coupon from '../models/CouponModel';
+import Coupon from '../models/couponModel';
 
 // @desc    Get list of coupons
 // @route   Get /api/v1/coupons
