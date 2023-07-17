@@ -10,6 +10,7 @@ import ReviewRoute from './reviewRoute';
 import WishlistRoute from './wishlistRoute';
 import AddressesRoute from './addressesRoute';
 import CouponRoute from './couponRoute';
+import CartRoute from './cartRoute';
 
 export default (app: Application) => {
     // Mount Routs
@@ -23,4 +24,5 @@ export default (app: Application) => {
     app.use('/api/v1/wishlist', WishlistRoute);
     app.use('/api/v1/addresses', AddressesRoute);
     app.use('/api/v1/coupons', CouponRoute);
+    app.use('/api/v1/cart', CartRoute);
 };
