@@ -11,6 +11,7 @@ function caculateTotalCartPrice(cart: any) {
         (acc: any, item: any) => acc + item.price * item.quantity,
         0
     );
+    cart.totalPriceAfterDiscount = undefined;
 }
 
 // @desc    Add product to cart
@@ -202,25 +203,27 @@ export const updateCartItemQuantity = asyncHandler(
 );
 
 // @desc    apply coupon on logged user cart
-// @route   PUT /api/v1/cart/applayCoupon
+// @route   PUT /api/v1/cart/applyCoupon
 // @access  Private
-export const applayCoupon = asyncHandler(
+export const applyCoupon = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const { coupon } = req.body;
         const validCoupon = await Coupon.findOne({
-            name: coupon,
+            name: req.body.coupon,
             expire: { $gte: Date.now() },
         });
         if (!validCoupon) {
             return next(
-                new ApiError(`there is no coupon for this name ${coupon}`, 404)
+                new ApiError(
+                    `there is no coupon for this name ${req.body.coupon}`,
+                    404
+                )
             );
         } else {
             const cart = await Cart.findOne({ user: req.body.user._id });
             if (!cart) {
                 return next(
                     new ApiError(
-                        `there is no user for this id ${req.body.user._id}`,
+                        `there is no cart to this user for this id ${req.body.user._id}`,
                         404
                     )
                 );
