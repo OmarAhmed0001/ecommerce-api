@@ -53,5 +53,16 @@ const orderSchema = new mongoose.Schema(
     }
 );
 
+orderSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: 'name email phone profilePic',
+    }).populate({
+        path: 'cartItems.product',
+        select: 'title imageCover',
+    });
+    next();
+});
+
 const Order = mongoose.model('Order', orderSchema);
 export default Order;

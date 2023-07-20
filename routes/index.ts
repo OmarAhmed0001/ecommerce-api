@@ -11,6 +11,7 @@ import WishlistRoute from './wishlistRoute';
 import AddressesRoute from './addressesRoute';
 import CouponRoute from './couponRoute';
 import CartRoute from './cartRoute';
+import OrderRoute from './orderRoute';
 
 export default (app: Application) => {
     // Mount Routs
@@ -25,4 +26,5 @@ export default (app: Application) => {
     app.use('/api/v1/addresses', AddressesRoute);
     app.use('/api/v1/coupons', CouponRoute);
     app.use('/api/v1/cart', CartRoute);
+    app.use('/api/v1/orders', OrderRoute);
 };
