@@ -1,3 +1,7 @@
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: '2022-11-15',
+});
 import { Request, Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
 import { getAll, getOne } from './HandlersFactory';
@@ -91,7 +95,9 @@ export const updateOrderToPaid = asyncHandler(
         const { id } = req.params;
         const order = await Order.findById(id);
         if (!order) {
-            return next(new ApiError(`Order not found with this id ${id}`, 404));
+            return next(
+                new ApiError(`Order not found with this id ${id}`, 404)
+            );
         }
         order.isPaid = true;
         order.paidAt = Date.now() as unknown as Date;
@@ -112,7 +118,9 @@ export const updateOrderToDelivered = asyncHandler(
         const { id } = req.params;
         const order = await Order.findById(id);
         if (!order) {
-            return next(new ApiError(`Order not found with this id ${id}`, 404));
+            return next(
+                new ApiError(`Order not found with this id ${id}`, 404)
+            );
         }
         order.isDelivered = true;
         order.deliveredAt = Date.now() as unknown as Date;
@@ -121,6 +129,70 @@ export const updateOrderToDelivered = asyncHandler(
             status: 'success',
             message: 'Order updated successfully.',
             data: updatedOrder,
+        });
+    }
+);
+
+// @desc    Get checkout session from stripe and send it as response
+// @route   GET /api/v1/orders/checkout-session/:cartId
+// @access  Private/user
+export const checkoutSession = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const shippingPrice = 0;
+        const taxPrice = 0;
+        //1) get cart from cartId
+        const { cartId } = req.params;
+        const cart = await Cart.findById(cartId);
+        if (!cart) {
+            return next(
+                new ApiError(`Cart not found with this id ${cartId}`, 404)
+            );
+        }
+        //2) get order price from cart "check if coupon applied or not"
+        const orderPrice = cart.totalPriceAfterDiscount
+            ? cart.totalPriceAfterDiscount
+            : cart.totalCartPrice;
+        if (!orderPrice) {
+            return next(new ApiError(`Cart is empty`, 404));
+        }
+        const totalOrderPrice = orderPrice + shippingPrice + taxPrice;
+        //3) create stripe checkout session
+        const session = await stripe.checkout.sessions.create({
+            
+            
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        //egyptian pound
+                        currency: 'egp',
+                        product_data: {
+                            name: req.body.user.name,
+                            images: [req.body.user.profilePic],
+                        },
+                        unit_amount: totalOrderPrice * 100,
+                    },
+
+                    quantity: 1,
+                },
+            ],
+            customer_email: req.body.user.email,
+            mode: 'payment',
+            success_url: `${req.protocol}://${req.get(
+                'host'
+            )}/api/v1/orders/success?cartId=${cartId}`,
+            cancel_url: `${req.protocol}://${req.get(
+                'host'
+            )}/api/v1/orders/cancel?cartId=${cartId}`,
+            client_reference_id: cartId,
+            metadata: req.body.shippingAddress,
+        });
+        console.log(req.body.user.profilePic);
+        //4) send session as response
+        res.status(200).json({
+            status: 'success',
+            message: 'Checkout session created successfully.',
+            session,
         });
     }
 );

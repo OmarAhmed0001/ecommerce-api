@@ -5,6 +5,7 @@ import {
     getSpecificOrders,
     updateOrderToPaid,
     updateOrderToDelivered,
+    checkoutSession
 } from '../controllers/OrderController';
 
 import { protect, allowedTo } from '../controllers/AuthController';
@@ -12,6 +13,7 @@ import { protect, allowedTo } from '../controllers/AuthController';
 const router = Router();
 router.use(protect);
 router.route('/').get(allowedTo('admin', 'user', 'manager'), getAllOrders);
+router.route('/checkout-session/:cartId').get(allowedTo( 'user'), checkoutSession);
 router
     .route('/:id')
     .get(allowedTo('admin', 'user', 'manager'), getSpecificOrders);
