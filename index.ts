@@ -5,6 +5,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import cors from 'cors';
 // modules from this project
 // Database
 import { dbConnection } from './config/database';
@@ -25,6 +26,7 @@ const app = express();
 // Middlewares
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../uploads')));
+app.use(cors());
 
 // app.use(bodyParser.urlencoded({ extended: true }));
 
