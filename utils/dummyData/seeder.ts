@@ -11,7 +11,7 @@ dbConnection();
 
 // Read data
 const products = JSON.parse(
-    fs.readFileSync('src/../utils/dummyData/products.json', 'utf-8')
+    fs.readFileSync('./utils/dummyData/products.json', 'utf-8')
 );
 
 // Insert data into DB

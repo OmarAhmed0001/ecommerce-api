@@ -7,12 +7,12 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 // modules from this project
 // Database
-import { dbConnection } from '../config/database';
+import { dbConnection } from './config/database';
 // Routes
-import mountRoutes from '../routes/index';
+import mountRoutes from './routes/index';
 // Error Handling
-import ApiError from '../utils/apiError';
-import globalError from '../middlewares/errorMiddleware';
+import ApiError from './utils/apiError';
+import globalError from './middlewares/errorMiddleware';
 
 dotenv.config({ path: 'config.env' });
 
