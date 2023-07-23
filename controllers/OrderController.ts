@@ -244,17 +244,17 @@ export const webhookCheckout = asyncHandler(
             event = stripe.webhooks.constructEvent(
                 req.body,
                 sig,
-                process.env.STRIPE_WEBHOOK_SECRET as string
-            );
-            console.log('event type', event.type);
-            console.log(
-                'STRIPE_WEBHOOK_SECRET',
-                process.env.STRIPE_WEBHOOK_SECRET
+                process.env.STRIPE_WEBHOOK_SECRET as any
             );
             console.log('body', req.body);
         } catch (err: any) {
             // Explicitly type the "err" variable as "any" or "unknown" (if you are sure it will always be an error).
-            return next(new ApiError(`Webhook error ${err}`, 400));
+            return next(
+                new ApiError(
+                    `'Webhook error', ${err} 'STRIPE_WEBHOOK_SECRET', ${process.env.STRIPE_WEBHOOK_SECRET} 'event type', ${event?.type} 'body', ${req.body}`,
+                    400
+                )
+            );
         }
 
         if (event.type === 'checkout.session.completed') {
