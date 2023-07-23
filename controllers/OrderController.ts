@@ -10,6 +10,7 @@ import Product from '../models/productModel';
 import Cart from '../models/cartModel';
 import Order from '../models/orderModel';
 import User from '../models/userModel';
+import { log } from 'console';
 
 // @desc    Create cash order
 // @route   POST /api/v1/orders/:cartId
@@ -244,11 +245,13 @@ export const webhookCheckout = asyncHandler(
                 sig,
                 process.env.STRIPE_WEBHOOK_SECRET as string
             );
-        } catch (err) {
+        } catch (err: any) {
+            // Explicitly type the "err" variable as "any" or "unknown" (if you are sure it will always be an error).
             return next(new ApiError(`Webhook error ${err}`, 400));
         }
 
         if (event.type === 'checkout.session.completed') {
+            console.log('checkout session completed');
             createCardOrder(event.data.object);
         }
         res.status(200).json({ received: true });
