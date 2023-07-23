@@ -209,6 +209,7 @@ const createCardOrder = async (session: any) => {
         user: user?._id,
         isPaid: true,
         paidAt: Date.now() as unknown as Date,
+        paymentMethodType: 'card',
     });
     //4) after create order, decrease product quantity and increase sold
     if (order && cart) {
@@ -245,6 +246,12 @@ export const webhookCheckout = asyncHandler(
                 sig,
                 process.env.STRIPE_WEBHOOK_SECRET as string
             );
+            console.log('event type', event.type);
+            console.log(
+                'STRIPE_WEBHOOK_SECRET',
+                process.env.STRIPE_WEBHOOK_SECRET
+            );
+            console.log('body', req.body);
         } catch (err: any) {
             // Explicitly type the "err" variable as "any" or "unknown" (if you are sure it will always be an error).
             return next(new ApiError(`Webhook error ${err}`, 400));
