@@ -9,6 +9,7 @@ import ApiError from '../utils/apiError';
 import Product from '../models/productModel';
 import Cart from '../models/cartModel';
 import Order from '../models/orderModel';
+import User from '../models/userModel';
 
 // @desc    Create cash order
 // @route   POST /api/v1/orders/:cartId
@@ -158,8 +159,6 @@ export const checkoutSession = asyncHandler(
         const totalOrderPrice = orderPrice + shippingPrice + taxPrice;
         //3) create stripe checkout session
         const session = await stripe.checkout.sessions.create({
-            
-            
             payment_method_types: ['card'],
             line_items: [
                 {
@@ -178,12 +177,8 @@ export const checkoutSession = asyncHandler(
             ],
             customer_email: req.body.user.email,
             mode: 'payment',
-            success_url: `${req.protocol}://${req.get(
-                'host'
-            )}/api/v1/orders`,
-            cancel_url: `${req.protocol}://${req.get(
-                'host'
-            )}/api/v1/cart`,
+            success_url: `${req.protocol}://${req.get('host')}/api/v1/orders`,
+            cancel_url: `${req.protocol}://${req.get('host')}/api/v1/cart`,
             client_reference_id: cartId,
             metadata: req.body.shippingAddress,
         });
@@ -196,24 +191,66 @@ export const checkoutSession = asyncHandler(
         });
     }
 );
+const createCardOrder = async (session: any) => {
+    const cartId = session.client_reference_id;
+    const shippingAddress = session.metadata;
+    const totalOrderPrice = session.amount_total / 100;
 
+    //1) get cart from cartId
+    const cart = await Cart.findById(session.client_reference_id);
+    const user = await User.findOne({ email: session.customer_email });
+
+    //3) create order with default paymentMethodType = card
+    const order = await Order.create({
+        cartItems: cart?.cartItems,
+        totalOrderPrice,
+        shippingAddress,
+        user: user?._id,
+        isPaid: true,
+        paidAt: Date.now() as unknown as Date,
+    });
+    //4) after create order, decrease product quantity and increase sold
+    if (order && cart) {
+        const bulkOption = cart.cartItems.map((item: any) => {
+            return {
+                updateOne: {
+                    filter: { _id: item.product },
+                    update: {
+                        $inc: {
+                            quantity: -item.quantity,
+                            sold: +item.quantity,
+                        },
+                    },
+                },
+            };
+        });
+        await Product.bulkWrite(bulkOption, {});
+    }
+    //5) delete cart from db
+    await Cart.findByIdAndDelete(cartId);
+};
 // @desc    Create order after checkout session completed
-// @route   POST /api/v1/orders/webhook-checkout
-// @access  Public
+// @route   POST /webhook-checkout
+// @access  Private/user
 export const webhookCheckout = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const sig = req.headers['stripe-signature'] as string;
 
-  let event;
+        let event;
 
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
-  } catch (err) {
-    return next(new ApiError(`Webhook error ${err}`, 400));
-  }
+        try {
+            event = stripe.webhooks.constructEvent(
+                req.body,
+                sig,
+                process.env.STRIPE_WEBHOOK_SECRET as string
+            );
+        } catch (err) {
+            return next(new ApiError(`Webhook error ${err}`, 400));
+        }
 
-    if (event.type === 'checkout.session.completed') {
-        console.log('Create Order Here...');
+        if (event.type === 'checkout.session.completed') {
+            createCardOrder(event.data.object);
+        }
+        res.status(200).json({ received: true });
     }
-}
 );
