@@ -234,7 +234,7 @@ const createCardOrder = async (session: any) => {
 // @access  Private/user
 export const webhookCheckout = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const sig = req.headers['stripe-signature'] as string;
+        const sig = req.headers['stripe-signature'] as any;
 
         let event;
 
