@@ -180,10 +180,10 @@ export const checkoutSession = asyncHandler(
             mode: 'payment',
             success_url: `${req.protocol}://${req.get(
                 'host'
-            )}/api/v1/orders/success?cartId=${cartId}`,
+            )}/api/v1/orders`,
             cancel_url: `${req.protocol}://${req.get(
                 'host'
-            )}/api/v1/orders/cancel?cartId=${cartId}`,
+            )}/api/v1/cart`,
             client_reference_id: cartId,
             metadata: req.body.shippingAddress,
         });
