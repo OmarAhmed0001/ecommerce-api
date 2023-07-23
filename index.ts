@@ -15,6 +15,7 @@ import mountRoutes from './routes/index';
 // Error Handling
 import ApiError from './utils/apiError';
 import globalError from './middlewares/errorMiddleware';
+import { webhookCheckout } from './controllers/OrderController';
 
 dotenv.config({ path: 'config.env' });
 
@@ -24,10 +25,12 @@ dbConnection();
 // Express app
 const app = express();
 
-// Middlewares
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../uploads')));
-// app.use(bodyParser.urlencoded({ extended: true }));
+// checkout webhooks
+app.post(
+    '/webhook-checkout',
+    express.raw({ type: 'application/json' }),
+    webhookCheckout
+);
 
 // Enable cors
 app.use(cors());
@@ -35,6 +38,11 @@ app.options('*', cors());
 
 // Compress all routes
 app.use(compression());
+
+// Middlewares
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../uploads')));
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 // Development logging
 

@@ -196,3 +196,24 @@ export const checkoutSession = asyncHandler(
         });
     }
 );
+
+// @desc    Create order after checkout session completed
+// @route   POST /api/v1/orders/webhook-checkout
+// @access  Public
+export const webhookCheckout = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const sig = req.headers['stripe-signature'] as string;
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
+  } catch (err) {
+    return next(new ApiError(`Webhook error ${err}`, 400));
+  }
+
+    if (event.type === 'checkout.session.completed') {
+        console.log('Create Order Here...');
+    }
+}
+);
